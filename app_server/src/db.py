@@ -56,7 +56,7 @@ class AerospikeClient():
             views = jsonpickle.encode(user_profile.views)
 
             meta = {'gen': gen}
-            policy = ({'gen': aerospike.POLICY_GEN_GT})
+            policy = ({'gen': aerospike.POLICY_GEN_EQ})
             bins = {'buys': buys, 'views': views}
 
             self.client.put(key, bins, meta=meta, policy=policy)
