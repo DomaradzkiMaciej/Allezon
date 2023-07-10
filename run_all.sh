@@ -24,4 +24,4 @@ sudo docker service create --name registry -p 5000:5000 registry:2
 sudo docker node update --label-add haproxy=true $(hostname)
 sudo docker-compose build
 sudo docker-compose push
-sudo docker stack deploy --compose-file docker-compose.yml allezone
+sudo docker stack deploy --compose-file docker-compose.yml allezon
