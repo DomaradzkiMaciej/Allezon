@@ -1,30 +1,88 @@
+version: "3.8"
 services:
-  app_server:
-    image: localhost:5000/app_server
-    build: ./app_server
-    ports:
-      - "8000:8000"
+  # app_server1:
+  #   image: st111vm101.rtb-lab.pl/app_server
+  #   build: ./app_server
+  #   # ports:
+  #   #   - "8000:8000"
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       max_replicas_per_node: 2
+  #       constraints: 
+  #         - node.labels.slow != true
+  #         - node.labels.haproxy != true
+
+  # app_server2:
+  #   image: st111vm101.rtb-lab.pl/app_server
+  #   build: ./app_server
+  #   # ports:
+  #   #   - "8000:8000"
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       max_replicas_per_node: 2
+  #       constraints: 
+  #         - node.labels.haproxy != true
+  #         - node.labels.slow == true
+
+  app_server2: &app-server
+    image: st111vm101.rtb-lab.pl/app_server
+    networks:
+      - redis_cluster_net
     deploy:
-      mode: replicated
-      replicas: 8
       placement:
-        max_replicas_per_node: 4
+        constraints: 
+          - node.labels.s02 == true
+
+  app_server3:
+    <<: *app-server
+    deploy:
+      placement:
+        constraints: 
+          - node.labels.s03 == true
+
+  app_server4:
+    image: st111vm101.rtb-lab.pl/app_server
+    deploy:
+      placement:
+        constraints: 
+          - node.labels.s04 == true
+
+  app_server5:
+    image: st111vm101.rtb-lab.pl/app_server
+    deploy:
+      placement:
+        constraints: 
+          - node.labels.s05 == true
+
+  app_server6:
+    image: st111vm101.rtb-lab.pl/app_server
+    deploy:
+      placement:
+        constraints: 
+          - node.labels.s06 == true
 
   app_haproxy:
-    image: localhost:5000/app_lb
+    image: st111vm101.rtb-lab.pl/app_lb
     build: ./app_lb
     ports:
       - "9000:9000"
-    networks:
-      - outside
+      - "10000:10000"
+    # network_mode: host
+    # networks:
+    #   - outside
     privileged: true
+    user: 0:0
     volumes:
-      - ./app_haproxy:/usr/local/etc/haproxy:ro
+      - ./app_lb:/usr/local/etc/haproxy:ro
     deploy:
       placement:
         constraints: [ node.labels.haproxy == true ]
 
-networks:
-  outside:
-    name: host
-    external: true
+# networks:
+#   outside:
+#     name: host
+#     external: true

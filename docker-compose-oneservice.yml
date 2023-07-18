@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  app_server:
+    image: st111vm101.rtb-lab.pl/app_server
+    build: ./app_server
+    ports:
+      - "8000:8000"
+    deploy:
+      mode: replicated
+      replicas: 5
+      placement:
+        max_replicas_per_node: 2
+        constraints: 
+          - node.labels.haproxy != true
+
+
+
+  app_haproxy:
+    image: st111vm101.rtb-lab.pl/app_lb
+    build: ./app_lb
+    ports:
+      - "9000:9000"
+      - "10000:10000"
+    # network_mode: host
+    # networks:
+    #   - outside
+    # privileged: true
+    # user: 0:0
+    # volumes:
+    #   - ./app_lb:/usr/local/etc/haproxy:ro
+    deploy:
+      placement:
+        constraints: [ node.labels.haproxy == true ]
+
+  redis_1:
+    image: 'redis:latest'
+    container_name: redis_1
+    ports:
+      - "6379"
+    volumes:
+      - redis_1_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      redis_cluster_net:
+        ipv4_address: 173.18.0.2
+    deploy:
+      placement:
+        constraints: 
+          - node.labels.s07 == true
+
+# networks:
+#   outside:
+    # name: host
+    # external: true

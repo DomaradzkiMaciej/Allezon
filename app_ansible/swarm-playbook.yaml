@@ -45,6 +45,12 @@
        register: docker_status
        failed_when: docker_status.stdout_lines[0] != "active"
 
+     - name: Leave swarm
+       become: true
+       become_user: root
+       command: docker swarm leave --force
+       ignore_errors: yes
+
      - name: Join swarm
        become: true
        become_user: root

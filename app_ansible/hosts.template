@@ -1,0 +1,14 @@
+[docker]
+_student_vm1[01:10].rtb-lab.pl
+
+[swarm_manager]
+_student_vm101.rtb-lab.pl
+
+[swarm_nodes]
+_student_vm1[02:06].rtb-lab.pl
+
+[aerospike]
+_student_vm1[07:10].rtb-lab.pl
+
+[registry]
+_student_vm101.rtb-lab.pl

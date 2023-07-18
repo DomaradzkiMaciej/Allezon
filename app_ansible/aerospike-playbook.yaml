@@ -1,4 +1,15 @@
 ---
+- name: Aerospike kill
+  hosts: docker
+  tasks:
+    - name: Restart daemon on config change
+      become: true
+      become_user: root
+      ignore_errors: yes
+      systemd:
+            name: aerospike
+            state: stopped
+
 - name: Aerospike install
   any_errors_fatal: true
   hosts: aerospike
@@ -35,6 +46,12 @@
        file:
               path: /var/log/aerospike
               state: directory
+      
+     - name: Remove old data
+       become: true
+       become_user: root
+       command: rm /opt/aerospike/data/allezon1.dat /opt/aerospike/data/allezon2.dat /opt/aerospike/data/allezon3.dat
+       ignore_errors: yes
 
      - name: Copy config file with owner and permissions
        become: true
@@ -61,4 +78,4 @@
        systemd:
              name: aerospike
              state: restarted
-       when: service_conf.changed
+       # when: service_conf.changed
