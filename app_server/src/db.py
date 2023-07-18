@@ -1,7 +1,8 @@
-from types import UserTag, UserProfile, Action
+from types_ import UserTag, UserProfile, Action
 import jsonpickle
 import aerospike
-
+from pydantic import parse_obj_as
+import json
 
 class AerospikeClient():
     namespace = 'allezon'
@@ -9,14 +10,16 @@ class AerospikeClient():
 
     config = {
         'hosts': [
-            ('st108vm105.rtb-lab.pl', 3000),
-            ('st108vm106.rtb-lab.pl', 3000),
-            ('st108vm107.rtb-lab.pl', 3000),
-            ('st108vm108.rtb-lab.pl', 3000),
-            ('st108vm109.rtb-lab.pl', 3000)
+            # ('st111vm105.rtb-lab.pl', 3000),
+            # ('st111vm106.rtb-lab.pl', 3000),
+            ('st111vm107.rtb-lab.pl', 3000),
+            ('st111vm108.rtb-lab.pl', 3000),
+            ('st111vm109.rtb-lab.pl', 3000),
+            ('st111vm110.rtb-lab.pl', 3000)
+
         ],
         'policies': {
-            'timeout': 5000  # milliseconds
+            'timeout': 10000  # milliseconds
         }
     }
 
@@ -37,8 +40,11 @@ class AerospikeClient():
 
             key = (self.namespace, self.set, cookie)
             key, meta, bins = self.client.get(key)
-            buys = jsonpickle.decode(bins['buys'])
-            views = jsonpickle.decode(bins['views'])
+            # buys = jsonpickle.decode(bins['buys'])
+            # views = jsonpickle.decode(bins['views'])
+            buys = parse_obj_as(list[UserTag], json.loads(bins['buys']))
+            views = parse_obj_as(list[UserTag], json.loads(bins['views']))
+            
 
             return UserProfile.parse_obj({"cookie": cookie, "buys": buys, "views": views}), meta['gen']
 
@@ -52,12 +58,19 @@ class AerospikeClient():
 
             key = (self.namespace, self.set, user_profile.cookie)
 
-            buys = jsonpickle.encode(user_profile.buys)
-            views = jsonpickle.encode(user_profile.views)
+            # buys = jsonpickle.encode(user_profile.buys)
+            # views = jsonpickle.encode(user_profile.views)
+
+            # print([v.model_dump() for v in user_profile.views])
+            # print([b.model_dump() for b in user_profile.buys])
+            buys = json.dumps([b.model_dump() for b in user_profile.buys], default=str)
+            views = json.dumps([v.model_dump() for v in user_profile.views], default=str)
 
             meta = {'gen': gen}
             policy = ({'gen': aerospike.POLICY_GEN_EQ})
-            bins = {'buys': buys, 'views': views}
+            bins = {'cookie': user_profile.cookie, 'buys': buys, 'views': views}
+
+            # print(f'Writing to Aerospike. User cookie: {UserProfile.cookie}, bins: {bins}')
 
             self.client.put(key, bins, meta=meta, policy=policy)
             return True

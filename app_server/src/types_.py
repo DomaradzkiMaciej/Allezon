@@ -3,12 +3,12 @@ from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 
-class Device(Enum):
+class Device(str, Enum):
     PC = 'PC'
     MOBILE = 'MOBILE'
     TV = 'TV'
 
-class Action(Enum):
+class Action(str, Enum):
     VIEW = 'VIEW'
     BUY = 'BUY'
 
@@ -17,13 +17,15 @@ class Aggregate(Enum):
     SUM_PRICE = 'SUM_PRICE'
 
 class ProductInfo(BaseModel):
-    product_id: str
+    product_id: int
     brand_id: str
     category_id: str
     price: int
+#  {'product_info': {'product_id': 12486, 'brand_id': 'Ebros_Gift', 'category_id': 'Trousers', 'price': 28969}, 'time': '2022-03-01T00:00:00.649Z', 'cookie': '9WkYGxkiXBfpMIjBGURC', 'country': 'CL', 'device': 'MOBILE', 'action': 'VIEW', 'origin': 'CAMPAIGN_321'}
 
 class UserTag(BaseModel):
-    time: datetime
+    time: str
+    # time: datetime
     cookie: str
     country: str
     device: Device
@@ -33,5 +35,5 @@ class UserTag(BaseModel):
 
 class UserProfile(BaseModel):
     cookie: str
-    view: List[UserTag]
     buys: List[UserTag]
+    views: List[UserTag]
