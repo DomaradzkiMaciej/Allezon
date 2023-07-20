@@ -7,8 +7,6 @@
 
 # export PATH=~/usr/local/bin:$PATH
 
-# sudo docker service create --name registry -p 5000:5000 registry:2
-
 for i in $(seq -w 01 06); do
     sudo docker node update --label-add s"$i"=true st108vm1"$i"
 done

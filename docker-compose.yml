@@ -106,6 +106,7 @@ services:
     build: ./app_haproxy
     ports:
       - "9000:9000"
+      - "10000:10000"
     networks:
       - outside
     privileged: true

@@ -15,7 +15,7 @@ def user_tags(user_tag: UserTag):
     for _ in range(3):
         user_profile, gen = aerospike_client.get_profile(user_tag.cookie)
         action_list = user_profile.buys if user_tag.action == Action.BUY else user_profile.views
-        bisect.insort(action_list, user_tag, key=lambda x: -1 * x)
+        bisect.insort(action_list, user_tag, key=lambda tag: -1 * tag.time)
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):

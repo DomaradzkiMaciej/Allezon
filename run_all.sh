@@ -1,10 +1,10 @@
 #! /bin/bash
 
-pass=$1
-student=$2
+student=$1
+pass=$2
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <password> <student>"
+    echo "Usage: $0 <student> <pass>"
     exit 1
 fi
  
