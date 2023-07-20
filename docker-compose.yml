@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   # app_server1:
-  #   image: st111vm101.rtb-lab.pl/app_server
+  #   image: st108vm101.rtb-lab.pl/app_server
   #   build: ./app_server
   #   # ports:
   #   #   - "8000:8000"
@@ -15,7 +15,7 @@ services:
   #         - node.labels.haproxy != true
 
   # app_server2:
-  #   image: st111vm101.rtb-lab.pl/app_server
+  #   image: st108vm101.rtb-lab.pl/app_server
   #   build: ./app_server
   #   # ports:
   #   #   - "8000:8000"
@@ -29,7 +29,7 @@ services:
   #         - node.labels.slow == true
 
   app_server2: &app-server
-    image: st111vm101.rtb-lab.pl/app_server
+    image: st108vm101.rtb-lab.pl/app_server
     networks:
       - redis_cluster_net
     deploy:
@@ -45,28 +45,28 @@ services:
           - node.labels.s03 == true
 
   app_server4:
-    image: st111vm101.rtb-lab.pl/app_server
+    image: st108vm101.rtb-lab.pl/app_server
     deploy:
       placement:
         constraints: 
           - node.labels.s04 == true
 
   app_server5:
-    image: st111vm101.rtb-lab.pl/app_server
+    image: st108vm101.rtb-lab.pl/app_server
     deploy:
       placement:
         constraints: 
           - node.labels.s05 == true
 
   app_server6:
-    image: st111vm101.rtb-lab.pl/app_server
+    image: st108vm101.rtb-lab.pl/app_server
     deploy:
       placement:
         constraints: 
           - node.labels.s06 == true
 
   app_haproxy:
-    image: st111vm101.rtb-lab.pl/app_lb
+    image: st108vm101.rtb-lab.pl/app_lb
     build: ./app_lb
     ports:
       - "9000:9000"

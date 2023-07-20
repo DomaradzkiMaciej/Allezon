@@ -10,12 +10,12 @@ class AerospikeClient():
 
     config = {
         'hosts': [
-            # ('st111vm105.rtb-lab.pl', 3000),
-            # ('st111vm106.rtb-lab.pl', 3000),
-            ('st111vm107.rtb-lab.pl', 3000),
-            ('st111vm108.rtb-lab.pl', 3000),
-            ('st111vm109.rtb-lab.pl', 3000),
-            ('st111vm110.rtb-lab.pl', 3000)
+            # ('st108vm105.rtb-lab.pl', 3000),
+            # ('st108vm106.rtb-lab.pl', 3000),
+            ('st108vm107.rtb-lab.pl', 3000),
+            ('st108vm108.rtb-lab.pl', 3000),
+            ('st108vm109.rtb-lab.pl', 3000),
+            ('st108vm110.rtb-lab.pl', 3000)
 
         ],
         'policies': {

@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   app_server:
-    image: st111vm101.rtb-lab.pl/app_server
+    image: st108vm101.rtb-lab.pl/app_server
     build: ./app_server
     ports:
       - "8000:8000"
@@ -16,7 +16,7 @@ services:
 
 
   app_haproxy:
-    image: st111vm101.rtb-lab.pl/app_lb
+    image: st108vm101.rtb-lab.pl/app_lb
     build: ./app_lb
     ports:
       - "9000:9000"
