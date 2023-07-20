@@ -1,10 +1,8 @@
-from typing import Any, Dict
 from db import AerospikeClient
 from types_ import UserTag, UserProfile, Action
 
 from fastapi import FastAPI, Response
 import bisect
-
 
 aerospike_client = AerospikeClient()
 app = FastAPI()

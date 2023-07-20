@@ -5,10 +5,10 @@ st108vm1[01:10].rtb-lab.pl
 st108vm101.rtb-lab.pl
 
 [swarm_nodes]
-st108vm1[02:05].rtb-lab.pl
+st108vm1[02:06].rtb-lab.pl
 
 [aerospike]
-st108vm1[06:10].rtb-lab.pl
+st108vm1[07:10].rtb-lab.pl
 
 [registry]
 st108vm101.rtb-lab.pl

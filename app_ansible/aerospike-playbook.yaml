@@ -1,6 +1,6 @@
 ---
 - name: Aerospike kill
-  hosts: docker
+  hosts: aerospike
   tasks:
     - name: Restart daemon on config change
       become: true

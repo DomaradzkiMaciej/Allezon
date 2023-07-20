@@ -16,8 +16,8 @@ services:
 
 
   app_haproxy:
-    image: st108vm101.rtb-lab.pl/app_lb
-    build: ./app_lb
+    image: st108vm101.rtb-lab.pl/app_haproxy
+    build: app_haproxy
     ports:
       - "9000:9000"
       - "10000:10000"
@@ -27,7 +27,7 @@ services:
     # privileged: true
     # user: 0:0
     # volumes:
-    #   - ./app_lb:/usr/local/etc/haproxy:ro
+    #   - ./app_haproxy:/usr/local/etc/haproxy:ro
     deploy:
       placement:
         constraints: [ node.labels.haproxy == true ]

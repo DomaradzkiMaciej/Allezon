@@ -1,17 +1,16 @@
-from types_ import UserTag, UserProfile, Action
+from types_ import UserTag, UserProfile
 import jsonpickle
 import aerospike
 from pydantic import parse_obj_as
 import json
 
-class AerospikeClient():
+
+class AerospikeClient:
     namespace = 'allezon'
     set = 'user_tags'
 
     config = {
         'hosts': [
-            # ('st108vm105.rtb-lab.pl', 3000),
-            # ('st108vm106.rtb-lab.pl', 3000),
             ('st108vm107.rtb-lab.pl', 3000),
             ('st108vm108.rtb-lab.pl', 3000),
             ('st108vm109.rtb-lab.pl', 3000),
@@ -44,7 +43,6 @@ class AerospikeClient():
             # views = jsonpickle.decode(bins['views'])
             buys = parse_obj_as(list[UserTag], json.loads(bins['buys']))
             views = parse_obj_as(list[UserTag], json.loads(bins['views']))
-            
 
             return UserProfile.parse_obj({"cookie": cookie, "buys": buys, "views": views}), meta['gen']
 
