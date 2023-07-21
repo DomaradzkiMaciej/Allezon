@@ -46,8 +46,6 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
     user_profile, gen = aerospike_client.get_profile(cookie)
     time_start, time_end = time_range.split('_')
 
-    # print(user_profile)
-
     user_profile.buys = list(filter(lambda tag: time_start <= tag.time < time_end, user_profile.buys))
     user_profile.views = list(filter(lambda tag: time_start <= tag.time < time_end, user_profile.views))
 

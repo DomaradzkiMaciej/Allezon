@@ -1,5 +1,4 @@
 from types_ import UserTag, UserProfile
-import jsonpickle
 import aerospike
 from pydantic import parse_obj_as
 import json
@@ -39,8 +38,6 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, cookie)
             key, meta, bins = self.client.get(key)
-            # buys = jsonpickle.decode(bins['buys'])
-            # views = jsonpickle.decode(bins['views'])
             buys = parse_obj_as(list[UserTag], json.loads(bins['buys']))
             views = parse_obj_as(list[UserTag], json.loads(bins['views']))
 
@@ -56,19 +53,12 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, user_profile.cookie)
 
-            # buys = jsonpickle.encode(user_profile.buys)
-            # views = jsonpickle.encode(user_profile.views)
-
-            # print([v.model_dump() for v in user_profile.views])
-            # print([b.model_dump() for b in user_profile.buys])
             buys = json.dumps([b.model_dump() for b in user_profile.buys], default=str)
             views = json.dumps([v.model_dump() for v in user_profile.views], default=str)
 
             meta = {'gen': gen}
             policy = ({'gen': aerospike.POLICY_GEN_EQ})
-            bins = {'cookie': user_profile.cookie, 'buys': buys, 'views': views}
-
-            # print(f'Writing to Aerospike. User cookie: {UserProfile.cookie}, bins: {bins}')
+            bins = {'buys': buys, 'views': views}
 
             self.client.put(key, bins, meta=meta, policy=policy)
             return True

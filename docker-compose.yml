@@ -8,9 +8,13 @@ services:
       - "8000:8000"
     deploy:
       mode: replicated
-      replicas: 8
+      replicas: 12
       placement:
         max_replicas_per_node: 4
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128m"
 
   app_haproxy:
     image: localhost/app_haproxy
@@ -18,16 +22,9 @@ services:
     ports:
       - "9000:9000"
       - "10000:10000"
-    networks:
-      - outside
     privileged: true
     volumes:
       - ./app_haproxy:/usr/local/etc/haproxy:ro
     deploy:
       placement:
         constraints: [ node.labels.haproxy == true ]
-
-networks:
-  outside:
-    name: host
-    external: true

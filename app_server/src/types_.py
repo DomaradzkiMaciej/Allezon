@@ -14,7 +14,7 @@ class Action(str, Enum):
     BUY = 'BUY'
 
 
-class Aggregate(Enum):
+class Aggregate(str, Enum):
     COUNT = 'COUNT'
     SUM_PRICE = 'SUM_PRICE'
 
