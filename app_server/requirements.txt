@@ -2,4 +2,4 @@ fastapi
 uvicorn[standard]
 aerospike
 jsonpickle
-kafka-python
+confluent-kafka

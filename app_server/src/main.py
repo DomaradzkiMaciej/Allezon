@@ -20,14 +20,14 @@ class Inversed:
 
 aerospike_client = AerospikeClient()
 app = FastAPI()
-
-producer = KafkaProducer(bootstrap_servers=['st108vm101.rtb-lab.pl:9094',
-                                            'st108vm102.rtb-lab.pl:9094',
-                                            'st108vm103.rtb-lab.pl:9094',
-                                            'st108vm104.rtb-lab.pl:9094',
-                                            'st108vm105.rtb-lab.pl:9094',
-                                            'st108vm106.rtb-lab.pl:9094',
-                                            'st108vm107.rtb-lab.pl:9094'])
+#
+# producer = KafkaProducer(bootstrap_servers=['st108vm101.rtb-lab.pl:9094',
+#                                             'st108vm102.rtb-lab.pl:9094',
+#                                             'st108vm103.rtb-lab.pl:9094',
+#                                             'st108vm104.rtb-lab.pl:9094',
+#                                             'st108vm105.rtb-lab.pl:9094',
+#                                             'st108vm106.rtb-lab.pl:9094',
+#                                             'st108vm107.rtb-lab.pl:9094'])
 
 # {'product_info': {'product_id': 12486, 'brand_id': 'Ebros_Gift', 'category_id': 'Trousers', 'price': 28969}, 'time': '2022-03-01T00:00:00.649Z', 'cookie': '9WkYGxkiXBfpMIjBGURC', 'country': 'CL', 'device': 'MOBILE', 'action': 'VIEW', 'origin': 'CAMPAIGN_321'}
 @app.post("/user_tags")
@@ -45,7 +45,7 @@ def user_tags(user_tag: UserTag):
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):
-            producer.send('aggregation', user_profile.model_dump())
+            # producer.send('aggregation', user_profile.model_dump())
             return Response(status_code=204)
         else:
             continue
