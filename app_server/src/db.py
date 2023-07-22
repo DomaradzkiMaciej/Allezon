@@ -38,6 +38,7 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, cookie)
             key, meta, bins = self.client.get(key)
+
             buys = parse_obj_as(list[UserTag], json.loads(bins['buys']))
             views = parse_obj_as(list[UserTag], json.loads(bins['views']))
 

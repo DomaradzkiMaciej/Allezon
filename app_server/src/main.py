@@ -4,7 +4,7 @@ from types_ import UserTag, UserProfile, Action
 from fastapi import FastAPI, Response
 import bisect
 from functools import total_ordering
-
+from kafka import KafkaProducer
 
 @total_ordering
 class Inversed:
@@ -21,6 +21,13 @@ class Inversed:
 aerospike_client = AerospikeClient()
 app = FastAPI()
 
+producer = KafkaProducer(bootstrap_servers=['st108vm101.rtb-lab.pl:9094',
+                                            'st108vm102.rtb-lab.pl:9094',
+                                            'st108vm103.rtb-lab.pl:9094',
+                                            'st108vm104.rtb-lab.pl:9094',
+                                            'st108vm105.rtb-lab.pl:9094',
+                                            'st108vm106.rtb-lab.pl:9094',
+                                            'st108vm107.rtb-lab.pl:9094'])
 
 # {'product_info': {'product_id': 12486, 'brand_id': 'Ebros_Gift', 'category_id': 'Trousers', 'price': 28969}, 'time': '2022-03-01T00:00:00.649Z', 'cookie': '9WkYGxkiXBfpMIjBGURC', 'country': 'CL', 'device': 'MOBILE', 'action': 'VIEW', 'origin': 'CAMPAIGN_321'}
 @app.post("/user_tags")
@@ -29,10 +36,16 @@ def user_tags(user_tag: UserTag):
     for _ in range(3):
         user_profile, gen = aerospike_client.get_profile(user_tag.cookie)
         action_list = user_profile.buys if user_tag.action == Action.BUY else user_profile.views
-        bisect.insort(action_list, user_tag, key=lambda tag: Inversed(tag.time))
+
+        idx = next((i for i, tag in enumerate(action_list) if user_tag.time >= tag.time ), len(action_list))
+        action_list.insert(idx, user_tag)
+
+        # bisect.insort(action_list, user_tag, key=lambda tag: Inversed(tag.time))
+
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):
+            producer.send('aggregation', user_profile.model_dump())
             return Response(status_code=204)
         else:
             continue

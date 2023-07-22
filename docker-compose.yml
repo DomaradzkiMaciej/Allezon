@@ -1,6 +1,32 @@
 version: "3.8"
 
 services:
+  app_zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  app_kafka:
+    image: wurstmeister/kafka:latest
+    deploy:
+      mode: global
+    ports:
+      - target: 9094
+        published: 9094
+        protocol: tcp
+        mode: host
+    environment:
+      HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+      KAFKA_ZOOKEEPER_CONNECT: app_zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_PROTOCOL_NAME: OUTSIDE
+      KAFKA_ADVERTISED_PORT: 9094
+      KAFKA_PROTOCOL_NAME: INSIDE
+      KAFKA_PORT: 9092
+      KAFKA_CREATE_TOPICS: aggregation:3:2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   app_server:
     image: st108vm101.rtb-lab.pl/app_server
     build: ./app_server
