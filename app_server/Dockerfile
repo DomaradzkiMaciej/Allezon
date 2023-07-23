@@ -6,6 +6,8 @@ RUN apt-get update && \
         apt-get update && \
         apt-get install -y --no-install-recommends python3.10 python3-pip python3-dev libssl-dev
 
+RUN python3.10 --version
+
 COPY ["requirements.txt", "/tmp/requirements.txt"]
 
 RUN ["pip3", "install", "-r", "/tmp/requirements.txt"]
