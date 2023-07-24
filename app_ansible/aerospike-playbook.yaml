@@ -15,7 +15,6 @@
   hosts: aerospike
 
   tasks:
-
      - name: Populate service facts
        ansible.builtin.service_facts:
 
