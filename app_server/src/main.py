@@ -18,6 +18,13 @@ class Inversed:
         return other.x <= self.x
 
 
+def normalize_time(datatime: str):
+    if '.' in datatime:
+        return datatime[:-1]
+    else:
+        return datatime[:-1] + '.000'
+
+
 aerospike_client = AerospikeClient()
 app = FastAPI()
 
@@ -29,7 +36,7 @@ def user_tags(user_tag: UserTag):
     for _ in range(3):
         user_profile, gen = aerospike_client.get_profile(user_tag.cookie)
         action_list = user_profile.buys if user_tag.action == Action.BUY else user_profile.views
-        bisect.insort(action_list, user_tag, key=lambda tag: Inversed(tag.time))
+        bisect.insort(action_list, user_tag, key=lambda tag: Inversed(tag.time[:-1]))
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):
@@ -46,14 +53,20 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
     user_profile, gen = aerospike_client.get_profile(cookie)
     time_start, time_end = time_range.split('_')
 
-    user_profile.buys = list(filter(lambda tag: time_start <= tag.time < time_end, user_profile.buys))
-    user_profile.views = list(filter(lambda tag: time_start <= tag.time < time_end, user_profile.views))
+    user_profile.buys = list(filter(lambda tag: time_start <= normalize_time(tag.time) < time_end, user_profile.buys))
+    user_profile.views = list(filter(lambda tag: time_start <= normalize_time(tag.time) < time_end, user_profile.views))
 
     user_profile.buys = user_profile.buys[:limit]
     user_profile.views = user_profile.views[:limit]
 
-    # if user_profile != debug_response:
-    #     print(f'User profiles difference.\n{user_profile}\n{debug_response}')
+    # if user_profile.buys != debug_response.buys:
+    #     print(f'User profiles buys difference. time_start={time_start}, time_end={time_end}, limit={limit}')
+    #     print([tag.time for tag in user_profile.buys])
+    #     print([tag.time for tag in debug_response.buys])
+    # elif user_profile.views != debug_response.views:
+    #     print(f'User profiles views difference. time_start={time_start}, time_end={time_end}, limit={limit}')
+    #     print([tag.time for tag in user_profile.views])
+    #     print([tag.time for tag in debug_response.views])
 
     return user_profile
 

@@ -2,6 +2,7 @@ from types_ import UserTag, UserProfile
 import aerospike
 from pydantic import parse_obj_as
 import json
+import snappy
 
 
 class AerospikeClient:
@@ -38,8 +39,8 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, cookie)
             key, meta, bins = self.client.get(key)
-            buys = parse_obj_as(list[UserTag], json.loads(bins['buys']))
-            views = parse_obj_as(list[UserTag], json.loads(bins['views']))
+            buys = parse_obj_as(list[UserTag], json.loads(snappy.decompress(bins['buys'])))
+            views = parse_obj_as(list[UserTag], json.loads(snappy.decompress(bins['views'])))
 
             return UserProfile.parse_obj({"cookie": cookie, "buys": buys, "views": views}), meta['gen']
 
@@ -53,8 +54,8 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, user_profile.cookie)
 
-            buys = json.dumps([b.model_dump() for b in user_profile.buys], default=str)
-            views = json.dumps([v.model_dump() for v in user_profile.views], default=str)
+            buys = snappy.compress(json.dumps([b.model_dump() for b in user_profile.buys], default=str))
+            views = snappy.compress(json.dumps([v.model_dump() for v in user_profile.views], default=str))
 
             meta = {'gen': gen}
             policy = ({'gen': aerospike.POLICY_GEN_EQ})
