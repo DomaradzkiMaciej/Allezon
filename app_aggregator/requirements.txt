@@ -2,3 +2,4 @@ aerospike
 jsonpickle
 kafka-python
 pydantic
+python-snappy
