@@ -26,6 +26,7 @@ ansible-playbook -i ./hosts --extra-vars "ansible_user=$student ansible_password
 ansible-playbook -i ./hosts --extra-vars "ansible_user=$student ansible_password=$pass" docker-playbook.yaml
 ansible-playbook -i ./hosts --extra-vars "ansible_user=$student ansible_password=$pass" swarm-playbook.yaml
 ansible-playbook -i ./hosts --extra-vars "ansible_user=$student ansible_password=$pass" aerospike-playbook.yaml
+ansible-playbook -i ./hosts --extra-vars "ansible_user=$student ansible_password=$pass ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" kafka-playbook.yaml
 
 cd .. || exit
 

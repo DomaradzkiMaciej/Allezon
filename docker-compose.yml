@@ -16,6 +16,19 @@ services:
       options:
         max-size: "128m"
 
+  app_aggregator:
+    image: st108vm101.rtb-lab.pl/app_aggregator
+    build: ./app_aggregator
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128m"
+
   app_haproxy:
     image: localhost/app_haproxy
     build: ./app_haproxy

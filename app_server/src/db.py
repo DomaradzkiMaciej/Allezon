@@ -1,4 +1,4 @@
-from types_ import UserTag, UserProfile
+from types_ import UserTag, UserProfile, Aggregate
 import aerospike
 from pydantic import parse_obj_as
 import json
@@ -8,6 +8,7 @@ import snappy
 class AerospikeClient:
     namespace = 'allezon'
     set = 'user_tags'
+    set_aggregated = 'aggregated'
 
     config = {
         'hosts': [
@@ -46,6 +47,15 @@ class AerospikeClient:
 
         except aerospike.exception.RecordNotFound:
             return UserProfile.parse_obj({"cookie": cookie, "buys": [], "views": []}), 0
+
+    def get_aggregates(self, bucket_names):
+        if not self.client.is_connected():
+            self.client.connect()
+
+        keys = [(self.namespace, self.set_aggregated, bucket_name) for bucket_name in bucket_names]
+        buckets = self.client.get_many(keys)
+
+        return buckets
 
     def put_profile(self, user_profile, gen):
         try:

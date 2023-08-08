@@ -3,3 +3,4 @@ uvicorn[standard]
 aerospike
 jsonpickle
 python-snappy
+kafka-python

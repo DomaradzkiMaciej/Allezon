@@ -12,3 +12,6 @@ _student_vm1[07:10].rtb-lab.pl
 
 [registry]
 _student_vm101.rtb-lab.pl
+
+[kafka]
+_student_vm1[08:10].rtb-lab.pl
