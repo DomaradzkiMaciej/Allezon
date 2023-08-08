@@ -1,5 +1,5 @@
 from db import AerospikeClient
-from types_ import UserTag, UserProfile, Action, Aggregate
+from types_ import UserTag, UserProfile, Action, Aggregated
 
 from fastapi import FastAPI, Response
 import kafka
@@ -54,7 +54,7 @@ def user_tags(user_tag: UserTag):
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):
-            producer.send(json.dumps(user_tag.model_dump()))
+            producer.send('aggregation', json.dumps(user_tag.model_dump()).encode('utf-8'))
             return Response(status_code=204)
         else:
             continue
@@ -87,39 +87,42 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
 
 
 @app.post("/aggregates")
-def aggregates(time_range: str, action: Action, aggregates: list[Aggregate], debug_response: UserProfile,
+def aggregates(time_range: str, action: Action, aggregates: list[str], debug_response: Aggregated,
                origin: str = None, brand_id: str = None, category_id: str = None):
+    print('aggregates')
     buckets_starts = generate_bucket_starts(time_range)
     bucket_name = f"{action}_{origin}_{brand_id}_{category_id}_"
     bucket_names = [bucket_name + bucket_start for bucket_start in buckets_starts]
     buckets = aerospike_client.get_aggregates(bucket_names)
 
-    response = {}
-    response["columns"] = ["1m_bucket", "action"]
+    response = Aggregated.parse_obj({'columns': ["1m_bucket", "action"], 'rows': []})
     row_base = [action.value]
 
     if origin is not None:
-        response["columns"].append("origin")
+        response.columns.append("origin")
         row_base.append(origin)
 
     if brand_id is not None:
-        response["columns"].append("brand_id")
+        response.columns.append("brand_id")
         row_base.append(brand_id)
 
     if category_id is not None:
-        response["columns"].append("category_id")
+        response.columns.append("category_id")
         row_base.append(category_id)
 
-    response["columns"].extend([aggregate.value for aggregate in aggregates])
-    response["rows"] = [[buckets_start].extend(row_base) for buckets_start in buckets_starts]
+    response.columns.extend([aggregate.value for aggregate in aggregates])
+    response.rows = [[buckets_start].extend(row_base) for buckets_start in buckets_starts]
 
     for (i, (_, _, bucket)) in buckets.items():
         for aggregate in aggregates:
-            response["rows"][i - 1].append(bucket[aggregate.value])
+            response.rows[i - 1].append(bucket[aggregate.value])
 
     for row in response["rows"]:
-        if len(row) != len(response["columns"]):
+        if len(row) != len(response.columns):
             row.extend([0 for _ in range(len(aggregates))])
+
+    print(debug_response)
+    print(response)
 
     return response
 

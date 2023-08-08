@@ -14,4 +14,4 @@ COPY ["src/", "/opt/app_aggregator"]
 
 WORKDIR "/opt/app_aggregator"
 
-ENTRYPOINT ["python3.10", "-m", "uvicorn", "--host", "0.0.0.0", "main:app"]
+ENTRYPOINT ["python3.10", "main.py"]

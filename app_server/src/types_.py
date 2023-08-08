@@ -42,3 +42,8 @@ class UserProfile(BaseModel):
     cookie: str
     buys: List[UserTag]
     views: List[UserTag]
+
+
+class Aggregated(BaseModel):
+    columns: List[str]
+    rows: List[List[str]]

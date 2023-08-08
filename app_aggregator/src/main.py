@@ -12,7 +12,7 @@ aerospike_client = AerospikeClient()
 kafka_hosts = ['st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092', 'st108vm110.rtb-lab.pl:9092']
 
 admin_client = kafka.KafkaAdminClient(bootstrap_servers=kafka_hosts)
-consumer = kafka.KafkaConsumer(bootstrap_servers=kafka_hosts, compression_type='snappy', group_id='aggregation')
+consumer = kafka.KafkaConsumer(bootstrap_servers=kafka_hosts, group_id='aggregation')
 
 try:
     topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=2, replication_factor=2)]
