@@ -1,13 +1,15 @@
 from db import AerospikeClient
-from types_ import UserTag, UserProfile, Action, Aggregated
+from types_ import UserTag, UserProfile, Action, Aggregated, Aggregate
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Query
 import kafka
 
 import json
 import bisect
 from functools import total_ordering
 import datetime
+from typing import List
+
 
 @total_ordering
 class Inversed:
@@ -85,11 +87,10 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
 
     return user_profile
 
-
+#/aggregates?time_range=2022-03-01T00:01:00_2022-03-01T00:02:00&action=VIEW&category_id=Shoes___Accessories&aggregates=COUNT&aggregates=SUM_PRICE
 @app.post("/aggregates")
-def aggregates(time_range: str, action: Action, aggregates: list[str], debug_response: Aggregated,
+def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggregates: List[Aggregate] = Query(...),
                origin: str = None, brand_id: str = None, category_id: str = None):
-    print('aggregates')
     buckets_starts = generate_bucket_starts(time_range)
     bucket_name = f"{action}_{origin}_{brand_id}_{category_id}_"
     bucket_names = [bucket_name + bucket_start for bucket_start in buckets_starts]
@@ -111,18 +112,23 @@ def aggregates(time_range: str, action: Action, aggregates: list[str], debug_res
         row_base.append(category_id)
 
     response.columns.extend([aggregate.value for aggregate in aggregates])
-    response.rows = [[buckets_start].extend(row_base) for buckets_start in buckets_starts]
+    response.rows = [[buckets_start] + row_base for buckets_start in buckets_starts]
 
-    for (i, (_, _, bucket)) in buckets.items():
+    for (i, (_, _, bucket)) in enumerate(buckets):
         for aggregate in aggregates:
-            response.rows[i - 1].append(bucket[aggregate.value])
+            if bucket is not None:
+                response.rows[i].append(bucket[aggregate.value])
+            else:
+                response.rows[i].append('0')
 
-    for row in response["rows"]:
+    for row in response.rows:
         if len(row) != len(response.columns):
-            row.extend([0 for _ in range(len(aggregates))])
+            row.extend(['0' for _ in range(len(aggregates))])
 
-    print(debug_response)
-    print(response)
+    if response != debug_response:
+        print('difference')
+        print(response)
+        print(debug_response)
 
     return response
 
