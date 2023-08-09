@@ -158,6 +158,12 @@
              enabled: yes
              daemon_reload: yes
 
+     - name: Delete topic
+       become: true
+       become_user: root
+       command: /opt/kafka/bin/kafka-topics.sh --delete --topic aggregation --bootstrap-server localhost:9092
+       ignore_errors: yes
+
      - name: Restart daemon on config change
        become: true
        become_user: root

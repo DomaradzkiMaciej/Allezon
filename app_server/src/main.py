@@ -39,7 +39,7 @@ admin_client = kafka.KafkaAdminClient(bootstrap_servers=kafka_hosts)
 producer = kafka.KafkaProducer(bootstrap_servers=kafka_hosts, compression_type="snappy")
 
 try:
-    topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=2, replication_factor=2)]
+    topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=6, replication_factor=2, topic_configs={'retention.ms': 10000})]
     admin_client.create_topics(new_topics=topic_list, validate_only=False)
 except kafka.errors.TopicAlreadyExistsError as err:
     pass
@@ -111,10 +111,10 @@ def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggr
         response.columns.append("category_id")
         row_base.append(category_id)
 
-    response.columns.extend([aggregate.value for aggregate in aggregates])
+    response.columns.extend([aggregate.value.lower() for aggregate in aggregates])
     response.rows = [[buckets_start] + row_base for buckets_start in buckets_starts]
 
-    for (i, (_, _, bucket)) in enumerate(buckets):
+    for (i, bucket) in enumerate(buckets):
         for aggregate in aggregates:
             if bucket is not None:
                 response.rows[i].append(bucket[aggregate.value])
@@ -125,24 +125,23 @@ def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggr
         if len(row) != len(response.columns):
             row.extend(['0' for _ in range(len(aggregates))])
 
-    if response != debug_response:
-        print('difference')
-        print(response)
-        print(debug_response)
+    # if response != debug_response:
+    #     print('Aggregates difference')
+    #     print(response)
+    #     print(debug_response)
 
     return response
 
 
 def generate_bucket_starts(time_range: str):
     time_start, time_end = time_range.split('_')
-    datetime_format_in = "%Y-%m-%dT%H:%M:%S"
-    datetime_format_out = "%Y-%m-%dT%H:%M"
-    time_start = datetime.datetime.strptime(time_start, datetime_format_in)
-    time_end = datetime.datetime.strptime(time_end, datetime_format_in)
+    datetime_format = "%Y-%m-%dT%H:%M:%S"
+    time_start = datetime.datetime.strptime(time_start, datetime_format)
+    time_end = datetime.datetime.strptime(time_end, datetime_format)
 
     bucket_starts = []
     while time_start < time_end:
-        bucket_starts.append(time_start.strftime(datetime_format_out))
+        bucket_starts.append(time_start.strftime(datetime_format))
         time_start += datetime.timedelta(minutes=1)
 
     return bucket_starts

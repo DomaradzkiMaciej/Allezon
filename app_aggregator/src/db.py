@@ -34,16 +34,11 @@ class AerospikeClient:
                 self.client.connect()
 
             key = (self.namespace, self.set, bucket_name)
-            meta = {'gen': 0}
-            policy = ({'gen': aerospike.POLICY_GEN_EQ})
             operations_list = [operations.increment(Aggregate.COUNT.value, count),
                                operations.increment(Aggregate.SUM_PRICE.value, sum_price)]
 
-            self.client.operate(key, operations_list, meta=meta, policy=policy)
+            self.client.operate(key, operations_list)
             return True
-
-        except aerospike.exception.RecordGenerationError:
-            return False
 
         except aerospike.exception.AerospikeError as e:
             print(f'Error {e} while trying to write to Aerospike.')

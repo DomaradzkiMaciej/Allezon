@@ -21,9 +21,9 @@ services:
     build: ./app_aggregator
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 6
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: 2
     logging:
       driver: "json-file"
       options:

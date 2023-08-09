@@ -55,7 +55,7 @@ class AerospikeClient:
         keys = [(self.namespace, self.set_aggregated, bucket_name) for bucket_name in bucket_names]
         buckets = self.client.get_many(keys)
 
-        return buckets
+        return [bucket for (_, _, bucket) in buckets]
 
     def put_profile(self, user_profile, gen):
         try:
