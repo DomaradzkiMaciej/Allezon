@@ -91,7 +91,7 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
 
 # /aggregates?time_range=2022-03-01T00:01:00_2022-03-01T00:02:00&action=VIEW&category_id=Shoes___Accessories&aggregates=COUNT&aggregates=SUM_PRICE
 @app.post("/aggregates")
-def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggregates_: List[Aggregate] = Query(...),
+def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggregates: List[Aggregate] = Query(...),
                origin: str = None, brand_id: str = None, category_id: str = None):
     buckets_starts = generate_bucket_starts(time_range)
     bucket_name = f"{action}_{origin}_{brand_id}_{category_id}_"
@@ -113,11 +113,11 @@ def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggr
         response.columns.append("category_id")
         row_base.append(category_id)
 
-    response.columns.extend([aggregate.value.lower() for aggregate in aggregates_])
+    response.columns.extend([aggregate.value.lower() for aggregate in aggregates])
     response.rows = [[buckets_start] + row_base for buckets_start in buckets_starts]
 
     for (i, bucket) in enumerate(buckets):
-        for aggregate in aggregates_:
+        for aggregate in aggregates:
             if bucket is not None:
                 response.rows[i].append(str(bucket[aggregate.value]))
             else:
