@@ -1,6 +1,6 @@
-from types_ import UserTag, UserProfile, Aggregate
+from types_ import UserTag, UserProfile
 import aerospike
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 import json
 import snappy
 
@@ -26,6 +26,7 @@ class AerospikeClient:
     def __init__(self):
         self.client = aerospike.client(self.config)
         self.client.connect()
+        self.type_adapter = TypeAdapter(list[UserTag])
 
     def close(self):
         self.client.close()
@@ -40,13 +41,13 @@ class AerospikeClient:
 
             key = (self.namespace, self.set, cookie)
             key, meta, bins = self.client.get(key)
-            buys = parse_obj_as(list[UserTag], json.loads(snappy.decompress(bins['buys'])))
-            views = parse_obj_as(list[UserTag], json.loads(snappy.decompress(bins['views'])))
+            buys = self.type_adapter.validate_json(snappy.decompress(bins['buys']))
+            views = self.type_adapter.validate_json(snappy.decompress(bins['views']))
 
-            return UserProfile.parse_obj({"cookie": cookie, "buys": buys, "views": views}), meta['gen']
+            return UserProfile.model_validate({"cookie": cookie, "buys": buys, "views": views}), meta['gen']
 
         except aerospike.exception.RecordNotFound:
-            return UserProfile.parse_obj({"cookie": cookie, "buys": [], "views": []}), 0
+            return UserProfile.model_validate({"cookie": cookie, "buys": [], "views": []}), 0
 
     def get_aggregates(self, bucket_names):
         if not self.client.is_connected():

@@ -4,7 +4,6 @@ from types_ import UserTag, UserProfile, Action, Aggregated, Aggregate
 from fastapi import FastAPI, Response, Query
 import kafka
 
-import json
 import bisect
 from functools import total_ordering
 import datetime
@@ -33,13 +32,15 @@ def normalize_time(datatime: str):
 aerospike_client = AerospikeClient()
 app = FastAPI()
 
-kafka_hosts = ['st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092', 'st108vm110.rtb-lab.pl:9092']
+kafka_hosts = ['st108vm107.rtb-lab.pl:9092', 'st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092',
+               'st108vm110.rtb-lab.pl:9092']
 
 admin_client = kafka.KafkaAdminClient(bootstrap_servers=kafka_hosts)
 producer = kafka.KafkaProducer(bootstrap_servers=kafka_hosts, compression_type="snappy")
 
 try:
-    topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=6, replication_factor=2, topic_configs={'retention.ms': 10000})]
+    topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=6, replication_factor=2,
+                                       topic_configs={'retention.ms': 10000})]
     admin_client.create_topics(new_topics=topic_list, validate_only=False)
 except kafka.errors.TopicAlreadyExistsError as err:
     pass
@@ -56,7 +57,7 @@ def user_tags(user_tag: UserTag):
         del action_list[200:]
 
         if aerospike_client.put_profile(user_profile, gen):
-            producer.send('aggregation', json.dumps(user_tag.model_dump()).encode('utf-8'))
+            producer.send('aggregation', user_tag.model_dump_json().encode('utf-8'))
             return Response(status_code=204)
         else:
             continue
@@ -87,16 +88,17 @@ def user_profiles(cookie: str, time_range: str, debug_response: UserProfile, lim
 
     return user_profile
 
-#/aggregates?time_range=2022-03-01T00:01:00_2022-03-01T00:02:00&action=VIEW&category_id=Shoes___Accessories&aggregates=COUNT&aggregates=SUM_PRICE
+
+# /aggregates?time_range=2022-03-01T00:01:00_2022-03-01T00:02:00&action=VIEW&category_id=Shoes___Accessories&aggregates=COUNT&aggregates=SUM_PRICE
 @app.post("/aggregates")
-def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggregates: List[Aggregate] = Query(...),
+def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggregates_: List[Aggregate] = Query(...),
                origin: str = None, brand_id: str = None, category_id: str = None):
     buckets_starts = generate_bucket_starts(time_range)
     bucket_name = f"{action}_{origin}_{brand_id}_{category_id}_"
-    bucket_names = [bucket_name + bucket_start for bucket_start in buckets_starts]
-    buckets = aerospike_client.get_aggregates(bucket_names)
+    buckets_names = [bucket_name + bucket_start for bucket_start in buckets_starts]
+    buckets = aerospike_client.get_aggregates(buckets_names)
 
-    response = Aggregated.parse_obj({'columns': ["1m_bucket", "action"], 'rows': []})
+    response = Aggregated.model_validate({'columns': ["1m_bucket", "action"], 'rows': []})
     row_base = [action.value]
 
     if origin is not None:
@@ -111,19 +113,15 @@ def aggregates(time_range: str, action: Action, debug_response: Aggregated, aggr
         response.columns.append("category_id")
         row_base.append(category_id)
 
-    response.columns.extend([aggregate.value.lower() for aggregate in aggregates])
+    response.columns.extend([aggregate.value.lower() for aggregate in aggregates_])
     response.rows = [[buckets_start] + row_base for buckets_start in buckets_starts]
 
     for (i, bucket) in enumerate(buckets):
-        for aggregate in aggregates:
+        for aggregate in aggregates_:
             if bucket is not None:
-                response.rows[i].append(bucket[aggregate.value])
+                response.rows[i].append(str(bucket[aggregate.value]))
             else:
                 response.rows[i].append('0')
-
-    for row in response.rows:
-        if len(row) != len(response.columns):
-            row.extend(['0' for _ in range(len(aggregates))])
 
     # if response != debug_response:
     #     print('Aggregates difference')
@@ -160,5 +158,5 @@ def truncate():
 
 @app.get("/hostname")
 def hostname():
-    hostname = open('/etc/hostname').read()
-    return {'hostname': hostname}
+    hostname_ = open('/etc/hostname').read()
+    return {'hostname': hostname_}
