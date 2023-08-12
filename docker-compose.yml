@@ -41,3 +41,7 @@ services:
     deploy:
       placement:
         constraints: [ node.labels.haproxy == true ]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128m"
