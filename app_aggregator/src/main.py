@@ -8,7 +8,7 @@ import itertools
 
 aerospike_client = AerospikeClient()
 
-kafka_hosts = ['st108vm108.rtb-lab.pl:9092', 'st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092',
+kafka_hosts = ['st108vm107.rtb-lab.pl:9092', 'st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092',
                'st108vm110.rtb-lab.pl:9092']
 
 admin_client = kafka.KafkaAdminClient(bootstrap_servers=kafka_hosts)

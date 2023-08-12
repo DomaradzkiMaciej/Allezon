@@ -34,7 +34,7 @@ class AerospikeClient:
     def truncate(self):
         self.client.truncate(self.namespace, self.set, 0)
 
-    def get_profile(self, cookie):
+    def get_profile(self, cookie):  
         try:
             if not self.client.is_connected():
                 self.client.connect()
