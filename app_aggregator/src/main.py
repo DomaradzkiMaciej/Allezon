@@ -8,14 +8,14 @@ import itertools
 
 aerospike_client = AerospikeClient()
 
-kafka_hosts = ['st108vm107.rtb-lab.pl:9092', 'st108vm108.rtb-lab.pl:9092', 'st108vm109.rtb-lab.pl:9092',
+kafka_hosts = ['st108vm109.rtb-lab.pl:9092',
                'st108vm110.rtb-lab.pl:9092']
 
 admin_client = kafka.KafkaAdminClient(bootstrap_servers=kafka_hosts)
 
 try:
     topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=6, replication_factor=2,
-                                       topic_configs={'retention.ms': 10000})]
+                                       topic_configs={'retention.ms': 8.64e+7})]
     admin_client.create_topics(new_topics=topic_list, validate_only=False)
 except kafka.errors.TopicAlreadyExistsError as err:
     pass

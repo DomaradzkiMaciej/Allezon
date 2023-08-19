@@ -12,6 +12,7 @@ class AerospikeClient:
 
     config = {
         'hosts': [
+            ('st108vm106.rtb-lab.pl', 3000),
             ('st108vm107.rtb-lab.pl', 3000),
             ('st108vm108.rtb-lab.pl', 3000),
             ('st108vm109.rtb-lab.pl', 3000),
@@ -34,7 +35,7 @@ class AerospikeClient:
     def truncate(self):
         self.client.truncate(self.namespace, self.set, 0)
 
-    def get_profile(self, cookie):  
+    def get_profile(self, cookie):
         try:
             if not self.client.is_connected():
                 self.client.connect()
