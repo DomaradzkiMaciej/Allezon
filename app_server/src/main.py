@@ -40,7 +40,7 @@ producer = kafka.KafkaProducer(bootstrap_servers=kafka_hosts, compression_type="
 
 try:
     topic_list = [kafka.admin.NewTopic(name='aggregation', num_partitions=6, replication_factor=2,
-                                       topic_configs={'retention.ms': 8.64e+7})]
+                                       topic_configs={'retention.ms': 86400000})]
     admin_client.create_topics(new_topics=topic_list, validate_only=False)
 except kafka.errors.TopicAlreadyExistsError as err:
     pass

@@ -6,7 +6,7 @@
  sudo chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
  sudo usermod -a -G docker $USER
 
-for i in $(seq -w 01 06); do
+for i in $(seq -w 01 05); do
     sudo docker node update --label-add s"$i"=true st108vm1"$i"
 done
 
