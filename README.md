@@ -1,5 +1,5 @@
 # Allezon
-This repository contains a platform implementing use cases 1 & 2 & 3 for Practical distributed systems class's assignement.
+This repository contains a platform implementing use cases 1 & 2 & 3 for [Practical distributed systems class's assignement](https://github.com/RTBHOUSE/mimuw-lab2023L/tree/master/project).
 
 ## Deployment
 To deploy this project on nodes shared by RTB House just change servers names in repository and run ./run_all.sh <student> <password>.
